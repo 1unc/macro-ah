@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "macro-ah"
+version = "0.1.0"
+description = "Halb-automatisches /ah-Listing fuer HugoSMP (Minecraft 1.21 Fabric)"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [{name = "Michael Blaess"}]
+dependencies = [
+    "pyautogui>=0.9.54",
+    "mss>=9.0.1",
+    "Pillow>=10.0.0",
+    "keyboard>=0.13.5",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "mypy>=1.8",
+]
+
+[project.scripts]
+macro-ah = "macro_ah.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["pyautogui", "mss", "mss.*", "keyboard"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

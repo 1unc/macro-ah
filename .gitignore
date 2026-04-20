@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+config.json
+python/config.json
+ahk/config.ini
+.vscode/
+.idea/
+docs/

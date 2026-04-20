@@ -1,0 +1,12 @@
+{
+  "points": {
+    "ah_create_btn":        [0, 0],
+    "ah_inv_top_left":      [0, 0],
+    "ah_inv_bottom_right":  [0, 0],
+    "ah_green_check":       [0, 0],
+    "ah_price_field":       [0, 0],
+    "ah_confirm_btn":       [0, 0],
+    "inv_top_left":         [0, 0],
+    "inv_bottom_right":     [0, 0]
+  }
+}
