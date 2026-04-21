@@ -108,7 +108,8 @@ Calibrate() {
         KeyWait "Space"
         KeyWait "Escape"
         loop {
-            Sleep 20
+            Sleep 21
+        
             if GetKeyState("Escape", "P") {
                 aborted := true
                 break 2
