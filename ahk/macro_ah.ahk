@@ -1,4 +1,3 @@
-;
 ; Macro-ah (AutoHotKey v2)
 ;
 ; Halb-automatisches /ah-Listing. Per Strg+Leertaste gestartet.
@@ -20,13 +19,15 @@ CoordMode "Pixel", "Screen"
 global ConfigFile       := A_ScriptDir . "\config.ini"
 global Points           := Map()
 global PriceStr         := "1.20"
-global AbortTolerance   := 60
+global AbortTolerance   := 120
 global BaselineX        := 0
 global BaselineY        := 0
 global SacrificeIdx     := 0
 global Cols             := 9
 global Rows             := 4
 global EmptySpreadThresh := 28
+
+global InvKey := "{Tab}"
 
 global CalibrationSteps := [
     Map("key", "ah_create_btn",       "desc", "/ah GUI: Button 'Auktion erstellen'"),
@@ -109,7 +110,6 @@ Calibrate() {
         KeyWait "Escape"
         loop {
             Sleep 21
-        
             if GetKeyState("Escape", "P") {
                 aborted := true
                 break 2
@@ -177,14 +177,12 @@ Sleep2(ms) {
 
 MoveTo(x, y) {
     MouseMove x, y, 2
-    ResetBaseline()
 }
 
 DoClick(pos, button := "Left", before := 120, after := 180) {
     Sleep2(before)
     MoveTo(pos[1], pos[2])
     Click button
-    ResetBaseline()
     Sleep2(after)
 }
 
@@ -219,18 +217,9 @@ IsSlotEmpty(cx, cy, radius := 6) {
         r := (color >> 16) & 0xFF
         g := (color >> 8) & 0xFF
         b := color & 0xFF
-        if (r < rMin)
-            rMin := r
-        if (r > rMax)
-            rMax := r
-        if (g < gMin)
-            gMin := g
-        if (g > gMax)
-            gMax := g
-        if (b < bMin)
-            bMin := b
-        if (b > bMax)
-            bMax := b
+        rMin := Min(rMin, r), rMax := Max(rMax, r)
+        gMin := Min(gMin, g), gMax := Max(gMax, g)
+        bMin := Min(bMin, b), bMax := Max(bMax, b)
     }
     spread := Max(rMax - rMin, gMax - gMin, bMax - bMin)
     return spread < EmptySpreadThresh
@@ -241,34 +230,31 @@ SplitPhase() {
     grid := BuildGrid(Points["inv_top_left"], Points["inv_bottom_right"])
 
     Sleep2(300)
-    Send "e"
+    Send InvKey
     Sleep2(450)
 
     sourceIdx := -1
     for idx, pos in grid {
         realIdx := idx - 1
-        if (realIdx = SacrificeIdx) {
+        if (realIdx = SacrificeIdx)
             continue
-        }
         if !IsSlotEmpty(pos[1], pos[2]) {
             sourceIdx := realIdx
             break
         }
     }
     if (sourceIdx = -1) {
-        Send "e"
+        Send InvKey
         throw Error("Kein Stack gefunden")
     }
 
     DoClick(grid[sourceIdx + 1], "Left", 100, 220)
 
-    ; Rechtsklick-Drag ueber alle Slots ausser Opferslot
     targets := []
     for idx, pos in grid {
         realIdx := idx - 1
-        if (realIdx = SacrificeIdx) {
+        if (realIdx = SacrificeIdx)
             continue
-        }
         targets.Push(pos)
     }
 
@@ -279,17 +265,15 @@ SplitPhase() {
             CheckAbort()
             t := targets[A_Index + 1]
             MouseMove t[1], t[2], 2
-            ResetBaseline()
         }
     } finally {
         Click "Right Up"
     }
 
     Sleep2(250)
-
     DoClick(grid[SacrificeIdx + 1], "Left", 100, 250)
 
-    Send "e"
+    Send InvKey
     Sleep2(500)
 }
 
@@ -325,17 +309,14 @@ ListingPhase() {
     filled := []
     for idx, pos in grid {
         realIdx := idx - 1
-        if (realIdx = SacrificeIdx) {
+        if (realIdx = SacrificeIdx)
             continue
-        }
-        if !IsSlotEmpty(pos[1], pos[2]) {
+        if !IsSlotEmpty(pos[1], pos[2])
             filled.Push(pos)
-        }
     }
 
-    if (filled.Length = 0) {
+    if (filled.Length = 0)
         throw Error("Keine Items erkannt")
-    }
 
     ToolTip "Liste " . filled.Length . " Items fuer " . PriceStr
     SetTimer () => ToolTip(), -2000
